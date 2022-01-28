@@ -12,7 +12,6 @@ The following files contain definitions of:
 * `include/utils.h` - utils such as args parser and CSR reader
 * `include/matmul.h` - common parts of both algorithms, as well as their individual parts
 * `include/logger.h` - logging && performance measurement utilities
-* `archive/*` - it's basically the same code but the one used for benchmarking -> it will contain `Logger` and `Timer` in the code. For final code I've removed them for clarity as well as possible overhead comming from e.g. writing to the file.
 
 In general `src/*.cpp` contains corresponding implementations. The only exceptions are:
 * `src/matmul.cpp` - implementation of common parts
