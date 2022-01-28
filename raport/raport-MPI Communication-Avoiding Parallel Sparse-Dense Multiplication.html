@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>
+        MPI Communication-Avoiding Parallel Sparse-Dense Multiplication - HackMD
+    </title>
+    <link rel="icon" type="image/png" href="https://hackmd.io/favicon.png">
+    <link rel="apple-touch-icon" href="https://hackmd.io/apple-touch-icon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" integrity="sha256-3iu9jgsy9TpTwXKb7bNQzqWekRX7pPK+2OLj3R922fo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.5.0/octicons.min.css" integrity="sha256-QiWfLIsCT02Sdwkogf6YMiQlj4NE84MKkzEMkZnMGdg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism.min.css" integrity="sha256-vtR0hSWRc3Tb26iuN2oZHt3KRUomwTufNIf5/4oeCyg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/css/basic/emojify.min.css" integrity="sha256-UOrvMOsSDSrW6szVLe8ZDZezBxh5IoIfgTwdNDgTjiU=" crossorigin="anonymous" />
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i|Source+Code+Pro:300,400,500|Source+Sans+Pro:300,300i,400,400i,600,600i|Source+Serif+Pro&subset=latin-ext);.hljs{display:block;background:#fff;padding:.5em;color:#333;overflow-x:auto}.hljs-comment,.hljs-meta{color:#969896}.hljs-emphasis,.hljs-quote,.hljs-string,.hljs-strong,.hljs-template-variable,.hljs-variable{color:#df5000}.hljs-keyword,.hljs-selector-tag,.hljs-type{color:#a71d5d}.hljs-attribute,.hljs-bullet,.hljs-literal,.hljs-number,.hljs-symbol{color:#0086b3}.hljs-built_in,.hljs-builtin-name{color:#005cc5}.hljs-name,.hljs-section{color:#63a35c}.hljs-tag{color:#333}.hljs-attr,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-selector-pseudo,.hljs-title{color:#795da3}.hljs-addition{color:#55a532;background-color:#eaffea}.hljs-deletion{color:#bd2c00;background-color:#ffecec}.hljs-link{text-decoration:underline}.markdown-body{font-size:16px;line-height:1.5;word-wrap:break-word}.markdown-body:after,.markdown-body:before{display:table;content:""}.markdown-body:after{clear:both}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a:not([href]){color:inherit;text-decoration:none}.markdown-body .absent{color:#c00}.markdown-body .anchor{float:left;padding-right:4px;margin-left:-20px;line-height:1}.markdown-body .anchor:focus{outline:none}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin-top:0;margin-bottom:16px}.markdown-body hr{height:.25em;padding:0;margin:24px 0;background-color:#e7e7e7;border:0}.markdown-body blockquote{font-size:16px;padding:0 1em;color:#777;border-left:.25em solid #ddd}.markdown-body blockquote>:first-child{margin-top:0}.markdown-body blockquote>:last-child{margin-bottom:0}.markdown-body kbd,.popover kbd{display:inline-block;padding:3px 5px;font-size:11px;line-height:10px;color:#555;vertical-align:middle;background-color:#fcfcfc;border:1px solid #ccc;border-bottom-color:#bbb;border-radius:3px;box-shadow:inset 0 -1px 0 #bbb}.markdown-body .loweralpha{list-style-type:lower-alpha}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{margin-top:24px;margin-bottom:16px;font-weight:600;line-height:1.25}.markdown-body h1 .octicon-link,.markdown-body h2 .octicon-link,.markdown-body h3 .octicon-link,.markdown-body h4 .octicon-link,.markdown-body h5 .octicon-link,.markdown-body h6 .octicon-link{color:#000;vertical-align:middle;visibility:hidden}.markdown-body h1:hover .anchor,.markdown-body h2:hover .anchor,.markdown-body h3:hover .anchor,.markdown-body h4:hover .anchor,.markdown-body h5:hover .anchor,.markdown-body h6:hover .anchor{text-decoration:none}.markdown-body h1:hover .anchor .octicon-link,.markdown-body h2:hover .anchor .octicon-link,.markdown-body h3:hover .anchor .octicon-link,.markdown-body h4:hover .anchor .octicon-link,.markdown-body h5:hover .anchor .octicon-link,.markdown-body h6:hover .anchor .octicon-link{visibility:visible}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{font-size:2em}.markdown-body h1,.markdown-body h2{padding-bottom:.3em;border-bottom:1px solid #eee}.markdown-body h2{font-size:1.5em}.markdown-body h3{font-size:1.25em}.markdown-body h4{font-size:1em}.markdown-body h5{font-size:.875em}.markdown-body h6{font-size:.85em;color:#777}.markdown-body ol,.markdown-body ul{padding-left:2em}.markdown-body ol.no-list,.markdown-body ul.no-list{padding:0;list-style-type:none}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-top:0;margin-bottom:0}.markdown-body li>p{margin-top:16px}.markdown-body li+li{padding-top:.25em}.markdown-body dl{padding:0}.markdown-body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}.markdown-body dl dd{padding:0 16px;margin-bottom:16px}.markdown-body table{display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{padding:6px 13px;border:1px solid #ddd}.markdown-body table tr{background-color:#fff;border-top:1px solid #ccc}.markdown-body table tr:nth-child(2n){background-color:#f8f8f8}.markdown-body img{max-width:100%;box-sizing:content-box;background-color:#fff}.markdown-body img[align=right]{padding-left:20px}.markdown-body img[align=left]{padding-right:20px}.markdown-body .emoji{max-width:none;vertical-align:text-top;background-color:transparent}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{display:block;float:left;width:auto;padding:7px;margin:13px 0 0;overflow:hidden;border:1px solid #ddd}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{display:block;padding:5px 0 0;clear:both;color:#333}.markdown-body span.align-center{display:block;overflow:hidden;clear:both}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{display:block;overflow:hidden;clear:both}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{padding:0;padding-top:.2em;padding-bottom:.2em;margin:0;font-size:85%;background-color:rgba(0,0,0,.04);border-radius:3px}.markdown-body code:after,.markdown-body code:before,.markdown-body tt:after,.markdown-body tt:before{letter-spacing:-.2em;content:"\00a0"}.markdown-body code br,.markdown-body tt br{display:none}.markdown-body del code{text-decoration:inherit}.markdown-body pre{word-wrap:normal}.markdown-body pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:transparent;border:0}.markdown-body .highlight{margin-bottom:16px}.markdown-body .highlight pre{margin-bottom:0;word-break:normal}.markdown-body .highlight pre,.markdown-body pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f7f7f7;border-radius:3px}.markdown-body pre code,.markdown-body pre tt{display:inline;max-width:auto;padding:0;margin:0;overflow:visible;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}.markdown-body pre code:after,.markdown-body pre code:before,.markdown-body pre tt:after,.markdown-body pre tt:before{content:normal}.markdown-body .csv-data td,.markdown-body .csv-data th{padding:5px;overflow:hidden;font-size:12px;line-height:1;text-align:left;white-space:nowrap}.markdown-body .csv-data .blob-line-num{padding:10px 8px 9px;text-align:right;background:#fff;border:0}.markdown-body .csv-data tr{border-top:0}.markdown-body .csv-data th{font-weight:700;background:#f8f8f8;border-top:0}.news .alert .markdown-body blockquote{padding:0 0 0 40px;border:0 none}.activity-tab .news .alert .commits,.activity-tab .news .markdown-body blockquote{padding-left:0}.task-list-item{list-style-type:none}.task-list-item label{font-weight:400}.task-list-item.enabled label{cursor:pointer}.task-list-item+.task-list-item{margin-top:3px}.task-list-item-checkbox{float:left;margin:.31em 0 .2em -1.3em!important;vertical-align:middle;cursor:default!important}.markdown-body{padding-top:40px;padding-bottom:40px;max-width:758px;overflow:visible!important;position:relative}.markdown-body .emoji{vertical-align:top}.markdown-body pre{border:inherit!important}.markdown-body code{color:inherit!important}.markdown-body pre code .wrapper{display:-moz-inline-flex;display:-ms-inline-flex;display:-o-inline-flex;display:inline-flex}.markdown-body pre code .gutter{float:left;overflow:hidden;-webkit-user-select:none;user-select:none}.markdown-body pre code .gutter.linenumber{text-align:right;position:relative;display:inline-block;cursor:default;z-index:4;padding:0 8px 0 0;min-width:20px;box-sizing:content-box;color:#afafaf!important;border-right:3px solid #6ce26c!important}.markdown-body pre code .gutter.linenumber>span:before{content:attr(data-linenumber)}.markdown-body pre code .code{float:left;margin:0 0 0 16px}.markdown-body .gist .line-numbers{border-left:none;border-top:none;border-bottom:none}.markdown-body .gist .line-data{border:none}.markdown-body .gist table{border-spacing:0;border-collapse:inherit!important}.markdown-body code[data-gist-id]{background:none;padding:0}.markdown-body code[data-gist-id]:after,.markdown-body code[data-gist-id]:before{content:""}.markdown-body code[data-gist-id] .blob-num{border:unset}.markdown-body code[data-gist-id] table{overflow:unset;margin-bottom:unset}.markdown-body code[data-gist-id] table tr{background:unset}.markdown-body[dir=rtl] pre{direction:ltr}.markdown-body[dir=rtl] code{direction:ltr;unicode-bidi:embed}.markdown-body .alert>p{margin-bottom:0}.markdown-body pre.abc,.markdown-body pre.flow-chart,.markdown-body pre.graphviz,.markdown-body pre.mermaid,.markdown-body pre.sequence-diagram,.markdown-body pre.vega{text-align:center;background-color:inherit;border-radius:0;white-space:inherit;overflow:visible}.markdown-body pre.abc>code,.markdown-body pre.flow-chart>code,.markdown-body pre.graphviz>code,.markdown-body pre.mermaid>code,.markdown-body pre.sequence-diagram>code,.markdown-body pre.vega>code{text-align:left}.markdown-body pre.abc>svg,.markdown-body pre.flow-chart>svg,.markdown-body pre.graphviz>svg,.markdown-body pre.mermaid>svg,.markdown-body pre.sequence-diagram>svg,.markdown-body pre.vega>svg{max-width:100%;height:100%}.markdown-body pre>code.wrap{white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space:-o-pre-wrap;word-wrap:break-word}.markdown-body .alert>p,.markdown-body .alert>ul{margin-bottom:0}.markdown-body summary{display:list-item}.markdown-body summary:focus{outline:none}.markdown-body details summary{cursor:pointer}.markdown-body details:not([open])>:not(summary){display:none}.markdown-body figure{margin:1em 40px}.markdown-body .mark,.markdown-body mark{background-color:#fff1a7}.vimeo,.youtube{cursor:pointer;display:table;text-align:center;background-position:50%;background-repeat:no-repeat;background-size:contain;background-color:#000;overflow:hidden}.vimeo,.youtube{position:relative;width:100%}.youtube{padding-bottom:56.25%}.vimeo img{width:100%;object-fit:contain;z-index:0}.youtube img{object-fit:cover;z-index:0}.vimeo iframe,.youtube iframe,.youtube img{width:100%;height:100%;position:absolute;top:0;left:0}.vimeo iframe,.youtube iframe{vertical-align:middle;z-index:1}.vimeo .icon,.youtube .icon{position:absolute;height:auto;width:auto;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;opacity:.3;transition:opacity .2s;z-index:0}.vimeo:hover .icon,.youtube:hover .icon{opacity:.6;transition:opacity .2s}.slideshare .inner,.speakerdeck .inner{position:relative;width:100%}.slideshare .inner iframe,.speakerdeck .inner iframe{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%}.figma{display:table;position:relative;width:100%;padding-bottom:56.25%}.figma iframe{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%;border:1px solid #eee}.MJX_Assistive_MathML{display:none}#MathJax_Message{z-index:1000!important}.ui-infobar{position:relative;z-index:2;max-width:760px;margin:25px auto -25px;color:#777}.toc .invisable-node{list-style-type:none}.ui-toc{position:fixed;bottom:20px;z-index:998}.ui-toc.both-mode{margin-left:8px}.ui-toc.both-mode .ui-toc-label{height:40px;padding:10px 4px;border-top-left-radius:0;border-bottom-left-radius:0}.ui-toc-label{background-color:#e6e6e6;border:none;color:#868686;transition:opacity .2s}.ui-toc .open .ui-toc-label{opacity:1;color:#fff;transition:opacity .2s}.ui-toc-label:focus{opacity:.3;background-color:#ccc;color:#000}.ui-toc-label:hover{opacity:1;background-color:#ccc;transition:opacity .2s}.ui-toc-dropdown{margin-top:20px;margin-bottom:20px;padding-left:10px;padding-right:10px;max-width:45vw;width:25vw;max-height:70vh;overflow:auto;text-align:inherit}.ui-toc-dropdown>.toc{max-height:calc(70vh - 100px);overflow:auto}.ui-toc-dropdown[dir=rtl] .nav{padding-right:0;letter-spacing:.0029em}.ui-toc-dropdown a{overflow:hidden;text-overflow:ellipsis;white-space:pre}.ui-toc-dropdown .nav>li>a{display:block;padding:4px 20px;font-size:13px;font-weight:500;color:#767676}.ui-toc-dropdown .nav>li:first-child:last-child>ul,.ui-toc-dropdown .toc.expand ul{display:block}.ui-toc-dropdown .nav>li>a:focus,.ui-toc-dropdown .nav>li>a:hover{padding-left:19px;color:#000;text-decoration:none;background-color:transparent;border-left:1px solid #000}.ui-toc-dropdown[dir=rtl] .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav>li>a:hover{padding-right:19px;border-left:none;border-right:1px solid #000}.ui-toc-dropdown .nav>.active:focus>a,.ui-toc-dropdown .nav>.active:hover>a,.ui-toc-dropdown .nav>.active>a{padding-left:18px;font-weight:700;color:#000;background-color:transparent;border-left:2px solid #000}.ui-toc-dropdown[dir=rtl] .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav>.active>a{padding-right:18px;border-left:none;border-right:2px solid #000}.ui-toc-dropdown .nav .nav{display:none;padding-bottom:10px}.ui-toc-dropdown .nav>.active>ul{display:block}.ui-toc-dropdown .nav .nav>li>a{padding-top:1px;padding-bottom:1px;padding-left:30px;font-size:12px;font-weight:400}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a{padding-right:30px}.ui-toc-dropdown .nav .nav>li>ul>li>a{padding-top:1px;padding-bottom:1px;padding-left:40px;font-size:12px;font-weight:400}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a{padding-right:40px}.ui-toc-dropdown .nav .nav>li>a:focus,.ui-toc-dropdown .nav .nav>li>a:hover{padding-left:29px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:hover{padding-right:29px}.ui-toc-dropdown .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown .nav .nav>li>ul>li>a:hover{padding-left:39px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:hover{padding-right:39px}.ui-toc-dropdown .nav .nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>a{padding-left:28px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>a{padding-right:28px}.ui-toc-dropdown .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>a{padding-left:38px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>a{padding-right:38px}.markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif}html[lang^=ja] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ\ ゴシック,sans-serif}html[lang=zh-tw] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html[lang=zh-cn] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}html .markdown-body[lang^=ja]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ\ ゴシック,sans-serif}html .markdown-body[lang=zh-tw]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html .markdown-body[lang=zh-cn]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}html[lang^=ja] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Meiryo UI,MS PGothic,ＭＳ\ Ｐゴシック,sans-serif}html[lang=zh-tw] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Microsoft JhengHei UI,微軟正黑UI,sans-serif}html[lang=zh-cn] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Microsoft YaHei UI,微软雅黑UI,sans-serif}html .ui-toc-dropdown[lang^=ja]{font-family:Source Sans Pro,Helvetica,Arial,Meiryo UI,MS PGothic,ＭＳ\ Ｐゴシック,sans-serif}html .ui-toc-dropdown[lang=zh-tw]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft JhengHei UI,微軟正黑UI,sans-serif}html .ui-toc-dropdown[lang=zh-cn]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft YaHei UI,微软雅黑UI,sans-serif}.ui-affix-toc{position:fixed;top:0;max-width:15vw;max-height:70vh;overflow:auto}.back-to-top,.expand-toggle,.go-to-bottom{display:block;padding:4px 10px;margin-top:10px;margin-left:10px;font-size:12px;font-weight:500;color:#999}.back-to-top:focus,.back-to-top:hover,.expand-toggle:focus,.expand-toggle:hover,.go-to-bottom:focus,.go-to-bottom:hover{color:#563d7c;text-decoration:none}.back-to-top,.go-to-bottom{margin-top:0}.ui-user-icon{width:20px;height:20px;display:block;border-radius:50%;margin-top:2px;margin-bottom:2px;margin-right:5px;background-position:50%;background-repeat:no-repeat;background-size:cover}.ui-user-icon.small{width:18px;height:18px;display:inline-block;vertical-align:middle;margin:0 0 .2em}.ui-infobar>small>span{line-height:22px}.ui-infobar>small .dropdown{display:inline-block}.ui-infobar>small .dropdown a:focus,.ui-infobar>small .dropdown a:hover{text-decoration:none}.ui-more-info{color:#888;cursor:pointer;vertical-align:middle}.ui-more-info .fa{font-size:16px}.ui-connectedGithub,.ui-published-note{color:#888}.ui-connectedGithub{line-height:23px;white-space:nowrap}.ui-connectedGithub a.file-path{color:#888;text-decoration:none;padding-left:22px}.ui-connectedGithub a.file-path:active,.ui-connectedGithub a.file-path:hover{color:#888;text-decoration:underline}.ui-connectedGithub .fa{font-size:20px}.ui-published-note .fa{font-size:20px;vertical-align:top}.unselectable{-webkit-user-select:none;-o-user-select:none;user-select:none}.selectable{-webkit-user-select:text;-o-user-select:text;user-select:text}@media print{blockquote,div,img,pre,table{page-break-inside:avoid!important}a[href]:after{font-size:12px!important}}.markdown-body.slides{position:relative;z-index:1;color:#222}.markdown-body.slides:before{content:"";display:block;position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;background-color:currentColor;box-shadow:0 0 0 50vw}.markdown-body.slides section[data-markdown]{position:relative;margin-bottom:1.5em;background-color:#fff;text-align:center}.markdown-body.slides section[data-markdown] code{text-align:left}.markdown-body.slides section[data-markdown]:before{content:"";display:block;padding-bottom:56.23%}.markdown-body.slides section[data-markdown]>div:first-child{position:absolute;top:50%;left:1em;right:1em;transform:translateY(-50%);max-height:100%;overflow:hidden}.markdown-body.slides section[data-markdown]>ul{display:inline-block}.markdown-body.slides>section>section+section:after{content:"";position:absolute;top:-1.5em;right:1em;height:1.5em;border:3px solid #777}.site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,sans-serif}html[lang^=ja] .site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ\ ゴシック,sans-serif}html[lang=zh-tw] .site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html[lang=zh-cn] .site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}body{font-smoothing:subpixel-antialiased!important;-webkit-font-smoothing:subpixel-antialiased!important;-moz-osx-font-smoothing:auto!important;text-shadow:0 0 1em transparent,1px 1px 1.2px rgba(0,0,0,.004);-webkit-overflow-scrolling:touch;letter-spacing:.025em;font-family:Source Sans Pro,Helvetica,Arial,sans-serif}html[lang^=ja] body{font-family:Source Sans Pro,Helvetica,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ\ ゴシック,sans-serif}html[lang=zh-tw] body{font-family:Source Sans Pro,Helvetica,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html[lang=zh-cn] body{font-family:Source Sans Pro,Helvetica,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}abbr[title]{border-bottom:none;text-decoration:underline;-webkit-text-decoration:underline dotted;text-decoration:underline dotted}abbr[data-original-title],abbr[title]{cursor:help}body.modal-open{overflow-y:auto;padding-right:0!important}
+    </style>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js" integrity="sha256-3Jy/GbSLrg0o9y5Z5n1uw0qxZECH7C6OQpVBgNFYa0g=" crossorigin="anonymous"></script>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js" integrity="sha256-8E4Is26QH0bD52WoQpcB+R/tcWQtpzlCojrybUd7Mxo=" crossorigin="anonymous"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div id="doc" class="markdown-body container-fluid comment-inner comment-enabled" data-hard-breaks="true"><h1 id="MPI-Communication-Avoiding-Parallel-Sparse-Dense-Multiplication" data-id="MPI-Communication-Avoiding-Parallel-Sparse-Dense-Multiplication"><a class="anchor hidden-xs" href="#MPI-Communication-Avoiding-Parallel-Sparse-Dense-Multiplication" title="MPI-Communication-Avoiding-Parallel-Sparse-Dense-Multiplication"><span class="octicon octicon-link"></span></a><span>MPI Communication-Avoiding Parallel Sparse-Dense Multiplication</span></h1><p><span>Note 1: Raport is available in 3 formats. For best experience I recommend </span><code>.html</code></p><p><span>Note 2: Since Okeanos was not available, I was not able to generate and wrap up all the comparisons as planned. However, I’ve prepared various implementations and approaches that I wanted to compare, and managed to run some of them on some subset of data. I will provide analysis based on those results.</span></p><h2 id="Project-structure" data-id="Project-structure"><a class="anchor hidden-xs" href="#Project-structure" title="Project-structure"><span class="octicon octicon-link"></span></a><span>Project structure</span></h2><p><span>The following files contain definitions of:</span></p><ul>
+<li><code>include/matrix.h</code><span> - matrices formats: CSR and DenseBlock</span></li>
+<li><code>include/mpi.h</code><span> - MPI communication used across the program. Some of them are implemented and not used in final algorithm, as they were used to provide empirical comparison of runtime results</span></li>
+<li><code>include/utils.h</code><span> - utils such as args parser and CSR reader</span></li>
+<li><code>include/matmul.h</code><span> - common parts of both algorithms, as well as their individual parts</span></li>
+<li><code>include/logger.h</code><span> - logging &amp;&amp; performance measurement utilities</span></li>
+<li><code>archive/*</code><span> - it’s basically the same code but the one used for benchmarking -&gt; it will contain </span><code>Logger</code><span> and </span><code>Timer</code><span> in the code. For final code I’ve removed them for clarity as well as possible overhead comming from e.g. writing to the file.</span></li>
+</ul><p><span>In general </span><code>src/*.cpp</code><span> contains corresponding implementations. The only exceptions are:</span></p><ul>
+<li><code>src/matmul.cpp</code><span> - implementation of common parts</span></li>
+<li><code>src/col_a.cpp</code><span> - implementation of ColA algorithm specific features</span></li>
+<li><code>src/inner_abc.cpp</code><span> - implementation of InnerABC algorithm specific features</span></li>
+</ul><p><span>However, all of them were declared in </span><code>include/matmul.h</code><span>.</span></p><h2 id="Introduction" data-id="Introduction"><a class="anchor hidden-xs" href="#Introduction" title="Introduction"><span class="octicon octicon-link"></span></a><span>Introduction</span></h2><h3 id="Notation" data-id="Notation"><a class="anchor hidden-xs" href="#Notation" title="Notation"><span class="octicon octicon-link"></span></a><span>Notation</span></h3><pre><code>A - sparse matrix
+B - dense matrix
+C - dense result matrix
+p - num processes
+c - replication factor
+n - number of rows/columns in matrix
+</code></pre><h3 id="Matrices" data-id="Matrices"><a class="anchor hidden-xs" href="#Matrices" title="Matrices"><span class="octicon octicon-link"></span></a><span>Matrices</span></h3><p><code>matrix.h</code></p><h4 id="CSR-format" data-id="CSR-format"><a class="anchor hidden-xs" href="#CSR-format" title="CSR-format"><span class="octicon octicon-link"></span></a><span>CSR format</span></h4><p><span>Follows wikipedia description.</span></p><h4 id="DenseBlock-format" data-id="DenseBlock-format"><a class="anchor hidden-xs" href="#DenseBlock-format" title="DenseBlock-format"><span class="octicon octicon-link"></span></a><span>DenseBlock format</span></h4><p><span>Dense matrix is represented as a vector </span><code>[row1, row2, row3...]</code><span>, and corresponding metadata: </span><code>n :- number of local (==global) rows, n_columns :- number of local columns</code><span>. Because matrices are squared, </span><code>n :- number of global rows == number of global columns</code><span>. To ensure that each process has the same number of local columns, that is </span><code>n_columns</code><span> is equal for each process, zero padding is added. I have also considered a little different memory layout for dense block and compared their times - see </span><a href="#denseblock-memory-layout-simple-but-crucial"><span>DenseBlock memory layout - simple but crucial</span></a></p><h2 id="Common" data-id="Common"><a class="anchor hidden-xs" href="#Common" title="Common"><span class="octicon octicon-link"></span></a><span>Common</span></h2><h3 id="High-level-overview" data-id="High-level-overview"><a class="anchor hidden-xs" href="#High-level-overview" title="High-level-overview"><span class="octicon octicon-link"></span></a><span>High-level overview</span></h3><p><span>High level view on </span><code>main.cpp</code></p><pre><code>read sparse A
+initializationStage()
+replicationStage()
+computationStage()
+optional: printing
+</code></pre><h3 id="Initialization-Stage" data-id="Initialization-Stage"><a class="anchor hidden-xs" href="#Initialization-Stage" title="Initialization-Stage"><span class="octicon octicon-link"></span></a><span>Initialization Stage</span></h3><pre><code>1. Master reads A.
+2. Master splits A into p fragments. (depending on algorithm, splits by row or by column).
+3. Master distributes those fragments between processes.
+4. Each process creates local B - using densematgen
+5. Each process creates local C - full of 0s
+</code></pre><h3 id="Replication-Stage" data-id="Replication-Stage"><a class="anchor hidden-xs" href="#Replication-Stage" title="Replication-Stage"><span class="octicon octicon-link"></span></a><span>Replication Stage</span></h3><p><span>Both algorithms share common replication phase for sparse A. They only differ in processes that receive corresponding shards. Additionally InnerABC replicates B,</span></p><pre><code>1. Processes replicate A within replication groups.
+2. Each replication group announces their final size of A (explained later in Computation Stage)
+3. if InnerABC then processes replicate B within proper replications groups (those are different than for A)
+</code></pre><h3 id="ReplicateA" data-id="ReplicateA"><a class="anchor hidden-xs" href="#ReplicateA" title="ReplicateA"><span class="octicon octicon-link"></span></a><span>ReplicateA</span></h3><p><span>Simple communication within replication group. Each process sends its fragment to all processes within this group.</span></p><h3 id="ReplicateB" data-id="ReplicateB"><a class="anchor hidden-xs" href="#ReplicateB" title="ReplicateB"><span class="octicon octicon-link"></span></a><span>ReplicateB</span></h3><p><span>Within replication group processes reduce their matrices - using </span><code>MPI_Allreduce</code><span>. See </span><code>inner_abc.cpp/replicateB()</code><span> for details.</span></p><p><span>For comparison, I have also implemented P2P replication of dense matrix, which, as expected resulted in much worse performance.</span></p><h3 id="Computation-Stage" data-id="Computation-Stage"><a class="anchor hidden-xs" href="#Computation-Stage" title="Computation-Stage"><span class="octicon octicon-link"></span></a><span>Computation Stage</span></h3><p><span>General idea for computation is to do local computation and rotate sparse A. However, it can be improved by </span><em><span>overlapping data transfer and computation using </span><strong><span>asynchronous communication</span></strong></em><span> - see pseudocode below. Overlapping those stages mitigates the overhead comming from transfering sparse matrices, empirically resulting in no overhead at all, as computation takes more time. This requires additional memory of </span><code>max_size(localA)</code><span> for recv buffer.</span><br>
+<span>To achieve fully asynchronous rotation of sparse A, process needs to know the size of incoming data ahead of time. Therefore, each process stores additionally </span><code>A_values_sizes</code><span> containing sizes of corresponding </span><em><span>replicated</span></em><span> fragments of A. To populate this vector, after replication stage, each replication group (process of rank 0 within this group) announces globally this group’s sparse A’s size. See </span><code>col_a.cpp/bcast_A_values_sizes()</code><span> or  </span><code>inner_abc.cpp/bcast_A_values_sizes()</code><span> for details.</span></p><pre><code>for exponent = 1,2...,e:
+    for round = 1,...,num_replication_groups:
+        start async_send local A
+        start async_recv next local A
+        compute local
+        wait for async_send to finish
+        wait for async_recv to finish
+    if notFinalExponent:
+        B := C
+    if InnerABC:
+        replicateB
+</code></pre><h4 id="GatherC" data-id="GatherC"><a class="anchor hidden-xs" href="#GatherC" title="GatherC"><span class="octicon octicon-link"></span></a><span>GatherC</span></h4><p><span>Implemented using </span><code>MPI_Gather</code></p><h4 id="ColA" data-id="ColA"><a class="anchor hidden-xs" href="#ColA" title="ColA"><span class="octicon octicon-link"></span></a><span>ColA</span></h4><ol>
+<li><span>Processes gather directly to master.</span></li>
+</ol><h4 id="InnerABC" data-id="InnerABC"><a class="anchor hidden-xs" href="#InnerABC" title="InnerABC"><span class="octicon octicon-link"></span></a><span>InnerABC</span></h4><ol>
+<li><span>Within replication group: reduce C to group’s master.</span></li>
+<li><span>Within master’s of these replication groups gather to global Master.</span></li>
+</ol><h3 id="CountGEValues" data-id="CountGEValues"><a class="anchor hidden-xs" href="#CountGEValues" title="CountGEValues"><span class="octicon octicon-link"></span></a><span>CountGEValues</span></h3><p><span>Implemented using </span><code>MPI_Reduce</code></p><h4 id="ColA1" data-id="ColA"><a class="anchor hidden-xs" href="#ColA1" title="ColA1"><span class="octicon octicon-link"></span></a><span>ColA</span></h4><ol>
+<li><span>Processes reduce directly to master.</span></li>
+</ol><h4 id="InnerABC1" data-id="InnerABC"><a class="anchor hidden-xs" href="#InnerABC1" title="InnerABC1"><span class="octicon octicon-link"></span></a><span>InnerABC</span></h4><ol>
+<li><span>Within replication group: reduce to group’s master.</span></li>
+<li><span>Within master’s of these replication groups reduce to global Master.</span></li>
+</ol><h4 id="Comparison-with-synchronous-computation" data-id="Comparison-with-synchronous-computation"><a class="anchor hidden-xs" href="#Comparison-with-synchronous-computation" title="Comparison-with-synchronous-computation"><span class="octicon octicon-link"></span></a><span>Comparison with synchronous computation</span></h4><p><span>For comparison I implemented a synchronous computation stage, that first finishes local computation and only then starts exchanging A. As expected, this approach worked significantly slower. The bigger the matrix, the bigger the gap. The local computation time was growing similarly in both cases. The asynchronous version was able to use it to cover the communication overhead. Meanwhile, synchronous approach was just getting slower as communication overhead was growing alongside matrix size. For details see </span><code>col_a.cpp/computationStageAsync()</code><span> vs </span><code>col_a.cpp/computationStageSync()</code><span>, or corresponding for </span><code>inner_abc.cpp/*</code></p><h2 id="Performance-comparison" data-id="Performance-comparison"><a class="anchor hidden-xs" href="#Performance-comparison" title="Performance-comparison"><span class="octicon octicon-link"></span></a><span>Performance comparison</span></h2><p><span>To measure performance of each part I used </span><code>Logger</code><span> and </span><code>Timer</code><span> classes introduced in </span><code>logger.h</code><span>. This applies as well to results described in previous paragraphs.</span></p><p><span>General conclusion is that, when using MPI, collectives, together with MPI_Communicator are crucial to achieve high performance. This empirically confirms what we were learning during the course. Collectives, blended together with async communication, and actual computation being performed in the meantime, allow us to reduce communication overhead nearly to 0, and make it negligible.</span></p><h2 id="Compute-Intensive-calculations" data-id="Compute-Intensive-calculations"><a class="anchor hidden-xs" href="#Compute-Intensive-calculations" title="Compute-Intensive-calculations"><span class="octicon octicon-link"></span></a><span>Compute Intensive calculations</span></h2><h3 id="DenseBlock-memory-layout---simple-but-crucial" data-id="DenseBlock-memory-layout---simple-but-crucial"><a class="anchor hidden-xs" href="#DenseBlock-memory-layout---simple-but-crucial" title="DenseBlock-memory-layout---simple-but-crucial"><span class="octicon octicon-link"></span></a><span>DenseBlock memory layout - simple but crucial</span></h3><p><span>I have considered two layouts for Dense Matrices. Both store values in a vector.</span></p><p><span>First of them allows for easy replication and gathering (merging matrices across processes):</span></p><ul>
+<li><code>[column1 column2 column3 ...]</code></li>
+</ul><p><span>Second approach requires additional post-processing after merging, if we want to keep concise layout and natural representation, but provides significant speed-up because memory access is aligned:</span></p><ul>
+<li><code> [row1 row2 row3 ... ]</code></li>
+</ul><p><span>In this layour after merging two vectors we have the following layout: </span><code>[P1_vals, P2_vals, P3_vals...]</code><span>. Thus, after replication/marging we transform it to </span><code> [row1_vals, row2_vals, row3_vals...]</code><span>. See </span><code>matrix.cpp/rearrangeAfterMerge</code><span> for details.</span></p><p><span>This might seem as a trivial difference, but it’s </span><em><span>crucial</span></em><span>, because </span><code>matmul.cpp/computationRound()</code><span> with second approach is empirically over </span><strong><span>5x times</span></strong><span> faster! It comes with the overhead of rearranging the matrix, but it’s done once after replication, and does not take that much time, actually being negligible. Meanwhile, computing is done multiple times.</span></p><p><span>More formally, it comes from the memory access layout. Here we want to access consecutive memory fragments as often as possible - for example, it’s similar to the “stride-memory-access” when adding vectors.</span></p><h3 id="Sparse-A-representation" data-id="Sparse-A-representation"><a class="anchor hidden-xs" href="#Sparse-A-representation" title="Sparse-A-representation"><span class="octicon octicon-link"></span></a><span>Sparse A representation</span></h3><p><span>Another variant I have considered is Sparse (row, column, value). This would allow for faster iteration over the values, however additional row vector will be bigger row_offset index used in CSR. I’ve decided that it’s better to do a little bit more work (computation), and transfer less data, rather than transfer more data and save not that much in terms of computation. More work comes from the fact that some rows might be empty and we will visit all of them in each iteration.</span></p><h2 id="Computation" data-id="Computation"><a class="anchor hidden-xs" href="#Computation" title="Computation"><span class="octicon octicon-link"></span></a><span>Computation</span></h2><h3 id="Operational-intensity" data-id="Operational-intensity"><a class="anchor hidden-xs" href="#Operational-intensity" title="Operational-intensity"><span class="octicon octicon-link"></span></a><span>Operational intensity</span></h3><p><em><span>Operational intensity</span></em><span> in a single computation round is following:</span></p><pre><code>    void MatMul::compute(const matrix::CSR &amp;sparse, const matrix::DenseBlock &amp;dense,
+                         matrix::DenseBlock &amp;result) {
+        const int result_n_columns = result._n_columns;
+        const int dense_n_columns = dense._n_columns;
+        for (int row_global = 0; row_global &lt; sparse.n; row_global++) {
+            int last_offset_idx_excl = sparse.offset_index[row_global + 1];
+            // for non-zero column in current row_global of A
+            for (int offset = sparse.offset_index[row_global];
+                 offset &lt; last_offset_idx_excl; offset++) {
+                const double val_a = sparse.values[offset];
+                const int column_global = sparse.column_index[offset];
+                const int result_row_offset = result_n_columns * row_global;
+                // update all locations in C to which this (A_r, A_c) contributes
+                // to do that iterate over all columns of b
+                for (int column_b = 0; column_b &lt; dense_n_columns; column_b++) {
+                    const double d_val = dense.values[column_global * dense_n_columns + column_b];
+                    result.values[result_row_offset + column_b] += val_a * d_val;
+                }
+            }
+        }
+    }
+</code></pre><p><span>Going through the top:</span></p><pre><code>2 reads
+for each row:            N times
+    2 reads
+    2 flops
+    for each offset:     nnz(A) times
+        2 reads
+        2 flops
+        for each column: N times
+            2 read
+            1 write
+            6 flops
+</code></pre><p><span>This gives us (adding from top):</span></p><pre><code>Reads: 2 + N*2 + N*nnz(A)*2 + N*nnz(A)*N*2
+Writes: N*nnz(A)*N*1
+Flops: N*2 + N*nnz(A)*2 + N*nnz(A)*N*5
+</code></pre><p><span>This gives us:</span></p><pre><code>Q = N(2 + nnz(A)*(2 + 2N)) + 2
+W = N(2 + nnz(A)*(2 + 6N))
+I = W/Q &gt; 1
+</code></pre><h2 id="Scaling" data-id="Scaling"><a class="anchor hidden-xs" href="#Scaling" title="Scaling"><span class="octicon octicon-link"></span></a><span>Scaling</span></h2><p><span>To measure scaling I adjusted and used </span><code>verifystud.py</code><span>.</span></p><p><span>To see scaling charts see the coresponding pdf files.</span></p><h3 id="Weak-Scaling" data-id="Weak-Scaling"><a class="anchor hidden-xs" href="#Weak-Scaling" title="Weak-Scaling"><span class="octicon octicon-link"></span></a><span>Weak Scaling</span></h3><p><span>Let </span><code>N = N_ROWS = N_COLUMNS, P = N_PROCESSES</code></p><p><span>Amount of work per processor is constant. Problem size grows with number of processors.</span></p><ul>
+<li><code>weak-scaling.pdf</code><span> represents the following setup:</span></li>
+</ul><pre><code>(N, P)
+(512, 1),
+(812, 4),
+(1024, 8),
+(1172, 12),
+(1290, 16),
+(1389, 20),
+(1476, 24),
+</code></pre><h3 id="Strong-Scaling" data-id="Strong-Scaling"><a class="anchor hidden-xs" href="#Strong-Scaling" title="Strong-Scaling"><span class="octicon octicon-link"></span></a><span>Strong Scaling</span></h3><p><span>Matrix size (work) is constant, and number of processors grows.</span></p><ul>
+<li><code>strong-scaling-ColA.pdf</code><span> represents strong scalling for </span><code>ColA</code></li>
+<li><code>strong-scaling-InnerABC.pdf</code><span> represents strong scalling for </span><code>InnerABC</code></li>
+</ul></div>
+    <div class="ui-toc dropup unselectable hidden-print" style="display:none;">
+        <div class="pull-right dropdown">
+            <a id="tocLabel" class="ui-toc-label btn btn-default" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" title="Table of content">
+                <i class="fa fa-bars"></i>
+            </a>
+            <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel">
+                <div class="toc"><ul class="nav">
+<li class=""><a href="#MPI-Communication-Avoiding-Parallel-Sparse-Dense-Multiplication" title="MPI Communication-Avoiding Parallel Sparse-Dense Multiplication">MPI Communication-Avoiding Parallel Sparse-Dense Multiplication</a><ul class="nav">
+<li><a href="#Project-structure" title="Project structure">Project structure</a></li>
+<li><a href="#Introduction" title="Introduction">Introduction</a><ul class="nav">
+<li><a href="#Notation" title="Notation">Notation</a></li>
+<li><a href="#Matrices" title="Matrices">Matrices</a></li>
+</ul>
+</li>
+<li><a href="#Common" title="Common">Common</a><ul class="nav">
+<li><a href="#High-level-overview" title="High-level overview">High-level overview</a></li>
+<li><a href="#Initialization-Stage" title="Initialization Stage">Initialization Stage</a></li>
+<li><a href="#Replication-Stage" title="Replication Stage">Replication Stage</a></li>
+<li><a href="#ReplicateA" title="ReplicateA">ReplicateA</a></li>
+<li><a href="#ReplicateB" title="ReplicateB">ReplicateB</a></li>
+<li><a href="#Computation-Stage" title="Computation Stage">Computation Stage</a></li>
+<li><a href="#CountGEValues" title="CountGEValues">CountGEValues</a></li>
+</ul>
+</li>
+<li><a href="#Performance-comparison" title="Performance comparison">Performance comparison</a></li>
+<li><a href="#Compute-Intensive-calculations" title="Compute Intensive calculations">Compute Intensive calculations</a><ul class="nav">
+<li><a href="#DenseBlock-memory-layout---simple-but-crucial" title="DenseBlock memory layout - simple but crucial">DenseBlock memory layout - simple but crucial</a></li>
+<li><a href="#Sparse-A-representation" title="Sparse A representation">Sparse A representation</a></li>
+</ul>
+</li>
+<li><a href="#Computation" title="Computation">Computation</a><ul class="nav">
+<li><a href="#Operational-intensity" title="Operational intensity">Operational intensity</a></li>
+</ul>
+</li>
+<li><a href="#Scaling" title="Scaling">Scaling</a><ul class="nav">
+<li><a href="#Weak-Scaling" title="Weak Scaling">Weak Scaling</a></li>
+<li><a href="#Strong-Scaling" title="Strong Scaling">Strong Scaling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu"><a class="expand-toggle" href="#">Expand all</a><a class="back-to-top" href="#">Back to top</a><a class="go-to-bottom" href="#">Go to bottom</a></div>
+            </ul>
+        </div>
+    </div>
+    <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:17px;display:none;" null null>
+        <div class="toc"><ul class="nav">
+<li class=""><a href="#MPI-Communication-Avoiding-Parallel-Sparse-Dense-Multiplication" title="MPI Communication-Avoiding Parallel Sparse-Dense Multiplication">MPI Communication-Avoiding Parallel Sparse-Dense Multiplication</a><ul class="nav">
+<li><a href="#Project-structure" title="Project structure">Project structure</a></li>
+<li><a href="#Introduction" title="Introduction">Introduction</a><ul class="nav">
+<li><a href="#Notation" title="Notation">Notation</a></li>
+<li><a href="#Matrices" title="Matrices">Matrices</a></li>
+</ul>
+</li>
+<li><a href="#Common" title="Common">Common</a><ul class="nav">
+<li><a href="#High-level-overview" title="High-level overview">High-level overview</a></li>
+<li><a href="#Initialization-Stage" title="Initialization Stage">Initialization Stage</a></li>
+<li><a href="#Replication-Stage" title="Replication Stage">Replication Stage</a></li>
+<li><a href="#ReplicateA" title="ReplicateA">ReplicateA</a></li>
+<li><a href="#ReplicateB" title="ReplicateB">ReplicateB</a></li>
+<li><a href="#Computation-Stage" title="Computation Stage">Computation Stage</a></li>
+<li><a href="#CountGEValues" title="CountGEValues">CountGEValues</a></li>
+</ul>
+</li>
+<li><a href="#Performance-comparison" title="Performance comparison">Performance comparison</a></li>
+<li><a href="#Compute-Intensive-calculations" title="Compute Intensive calculations">Compute Intensive calculations</a><ul class="nav">
+<li><a href="#DenseBlock-memory-layout---simple-but-crucial" title="DenseBlock memory layout - simple but crucial">DenseBlock memory layout - simple but crucial</a></li>
+<li><a href="#Sparse-A-representation" title="Sparse A representation">Sparse A representation</a></li>
+</ul>
+</li>
+<li><a href="#Computation" title="Computation">Computation</a><ul class="nav">
+<li><a href="#Operational-intensity" title="Operational intensity">Operational intensity</a></li>
+</ul>
+</li>
+<li><a href="#Scaling" title="Scaling">Scaling</a><ul class="nav">
+<li><a href="#Weak-Scaling" title="Weak Scaling">Weak Scaling</a></li>
+<li><a href="#Strong-Scaling" title="Strong Scaling">Strong Scaling</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu"><a class="expand-toggle" href="#">Expand all</a><a class="back-to-top" href="#">Back to top</a><a class="go-to-bottom" href="#">Go to bottom</a></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gist-embed/2.6.0/gist-embed.min.js" integrity="sha256-KyF2D6xPIJUW5sUDSs93vWyZm+1RzIpKCexxElmxl8g=" crossorigin="anonymous" defer></script>
+    <script>
+        var markdown = $(".markdown-body");
+        //smooth all hash trigger scrolling
+        function smoothHashScroll() {
+            var hashElements = $("a[href^='#']").toArray();
+            for (var i = 0; i < hashElements.length; i++) {
+                var element = hashElements[i];
+                var $element = $(element);
+                var hash = element.hash;
+                if (hash) {
+                    $element.on('click', function (e) {
+                        // store hash
+                        var hash = this.hash;
+                        if ($(hash).length <= 0) return;
+                        // prevent default anchor click behavior
+                        e.preventDefault();
+                        // animate
+                        $('body, html').stop(true, true).animate({
+                            scrollTop: $(hash).offset().top
+                        }, 100, "linear", function () {
+                            // when done, add hash to url
+                            // (default click behaviour)
+                            window.location.hash = hash;
+                        });
+                    });
+                }
+            }
+        }
+
+        smoothHashScroll();
+        var toc = $('.ui-toc');
+        var tocAffix = $('.ui-affix-toc');
+        var tocDropdown = $('.ui-toc-dropdown');
+        //toc
+        tocDropdown.click(function (e) {
+            e.stopPropagation();
+        });
+
+        var enoughForAffixToc = true;
+
+        function generateScrollspy() {
+            $(document.body).scrollspy({
+                target: ''
+            });
+            $(document.body).scrollspy('refresh');
+            if (enoughForAffixToc) {
+                toc.hide();
+                tocAffix.show();
+            } else {
+                tocAffix.hide();
+                toc.show();
+            }
+            $(document.body).scroll();
+        }
+
+        function windowResize() {
+            //toc right
+            var paddingRight = parseFloat(markdown.css('padding-right'));
+            var right = ($(window).width() - (markdown.offset().left + markdown.outerWidth() - paddingRight));
+            toc.css('right', right + 'px');
+            //affix toc left
+            var newbool;
+            var rightMargin = (markdown.parent().outerWidth() - markdown.outerWidth()) / 2;
+            //for ipad or wider device
+            if (rightMargin >= 133) {
+                newbool = true;
+                var affixLeftMargin = (tocAffix.outerWidth() - tocAffix.width()) / 2;
+                var left = markdown.offset().left + markdown.outerWidth() - affixLeftMargin;
+                tocAffix.css('left', left + 'px');
+            } else {
+                newbool = false;
+            }
+            if (newbool != enoughForAffixToc) {
+                enoughForAffixToc = newbool;
+                generateScrollspy();
+            }
+        }
+        $(window).resize(function () {
+            windowResize();
+        });
+        $(document).ready(function () {
+            windowResize();
+            generateScrollspy();
+        });
+
+        //remove hash
+        function removeHash() {
+            window.location.hash = '';
+        }
+
+        var backtotop = $('.back-to-top');
+        var gotobottom = $('.go-to-bottom');
+
+        backtotop.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToTop)
+                scrollToTop();
+            removeHash();
+        });
+        gotobottom.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToBottom)
+                scrollToBottom();
+            removeHash();
+        });
+
+        var toggle = $('.expand-toggle');
+        var tocExpand = false;
+
+        checkExpandToggle();
+        toggle.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            tocExpand = !tocExpand;
+            checkExpandToggle();
+        })
+
+        function checkExpandToggle () {
+            var toc = $('.ui-toc-dropdown .toc');
+            var toggle = $('.expand-toggle');
+            if (!tocExpand) {
+                toc.removeClass('expand');
+                toggle.text('Expand all');
+            } else {
+                toc.addClass('expand');
+                toggle.text('Collapse all');
+            }
+        }
+
+        function scrollToTop() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: 0
+            }, 100, "linear");
+        }
+
+        function scrollToBottom() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: $(document.body)[0].scrollHeight
+            }, 100, "linear");
+        }
+    </script>
+</body>
+
+</html>
