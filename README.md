@@ -1,8 +1,6 @@
 # MPI Communication-Avoiding Parallel Sparse-Dense Multiplication
 
-Note 1: Raport is available in 2 formats. For best experience I recommend `.html`
-
-Note 2: Since Okeanos was not available, I was not able to generate and wrap up all the comparisons as planned. However, I've prepared various implementations and approaches that I wanted to compare, and managed to run some of them on some subset of data. I will provide analysis based on those results.
+Note: Since Okeanos was not available, I was not able to generate and wrap up all the comparisons as planned. However, I've prepared various implementations and approaches that I wanted to compare, and managed to run some of them on some subset of data. I will provide analysis based on those results.
 
 ## Project structure
 
