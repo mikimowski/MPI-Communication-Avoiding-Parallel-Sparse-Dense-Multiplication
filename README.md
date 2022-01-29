@@ -1,24 +1,26 @@
 # MPI Communication-Avoiding Parallel Sparse-Dense Multiplication
 
-Note: Since Okeanos was not available, I was not able to generate and wrap up all the comparisons as planned. However, I've prepared various implementations and approaches that I wanted to compare, and managed to run some of them on some subset of data. I will provide analysis based on those results.
+C++ implementation of `ColA` and `InnerABC` algorithms from [Communication-Avoiding Parallel Sparse-Dense Multiplication](https://people.eecs.berkeley.edu/~yelick/papers/spdmmm16.pdf) leveraging Message Passing Interface (MPI).
+
+Abstract: "Multiplication of a sparse matrix with a dense matrix is a building block of an increasing number of applications in many areas such as machine learning and graph algorithms. However, most previous work on parallel matrix multiplication considered only both dense or both sparse matrix operands. This paper analyzes the communication lower bounds and compares the communication costs of various classic parallel algorithms in the context of sparse-dense matrix-matrix multiplication. We also present new communication-avoiding algorithms based on a 1D decomposition, called 1.5D, which — while suboptimal in dense-dense and sparse-sparse cases — outperform the 2D and 3D variants both theoretically and in practice for sparsedense multiplication. Our analysis separates one-time costs from per iteration costs in an iterative machine learning context. Experiments demonstrate speedups up to 100x over a baseline 3D SUMMA implementation and show parallel scaling over 10 thousand cores."
 
 ## Project structure
 
 The following files contain definitions of:
-* `include/matrix.h` - matrices formats: CSR and DenseBlock
-* `include/mpi.h` - MPI communication used across the program. Some of them are implemented and not used in final algorithm, as they were used to provide empirical comparison of runtime results
-* `include/utils.h` - utils such as args parser and CSR reader
-* `include/matmul.h` - common parts of both algorithms, as well as their individual parts
-* `include/logger.h` - logging && performance measurement utilities
+* [include/matrix.h](include/matrix.h) - matrices formats: CSR and DenseBlock
+* [include/mpi.h](include/mpi.h) - MPI communication used across the program. Some of them are implemented and not used in final algorithm, as they were used to provide empirical comparison of runtime results
+* [include/utils.h](include/utils.h) - utils such as args parser and CSR reader
+* [include/matmul.h](include/matmul.h) - common parts of both algorithms, as well as their individual parts
+* [include/logger.h](include/logger.h) - logging && performance measurement utilities
 
 In general `src/*.cpp` contains corresponding implementations. The only exceptions are:
-* `src/matmul.cpp` - implementation of common parts
-* `src/col_a.cpp` - implementation of ColA algorithm specific features
-* `src/inner_abc.cpp` - implementation of InnerABC algorithm specific features
+* [src/matmul.cpp](src/matmul.cpp) - implementation of common parts
+* [src/col_a.cpp](src/col_a.cpp) - implementation of ColA algorithm specific features
+* [src/inner_abc.cpp](src/inner_abc.cpp) - implementation of InnerABC algorithm specific features
 
-However, all of them were declared in `include/matmul.h`.
+However, all of them were declared in [include/matmul.h](include/matmul.h).
 
-## Introduction
+## Overview of the solution
 
 ### Notation
 ```
@@ -32,7 +34,7 @@ n - number of rows/columns in matrix
 
 ### Matrices
 
-```matrix.h```
+[matrix.h](include/matrix.h)
 
 #### CSR format
 
@@ -42,11 +44,10 @@ Follows [wikipedia](https://en.wikipedia.org/wiki/Sparse_matrix) description
 
 Dense matrix is represented as a vector `[row1, row2, row3...]`, and corresponding metadata: `n :- number of local (==global) rows, n_columns :- number of local columns`. Because matrices are squared, `n :- number of global rows == number of global columns`. To ensure that each process has the same number of local columns, that is `n_columns` is equal for each process, zero padding is added. I have also considered a little different memory layout for dense block and compared their times - see [DenseBlock memory layout - simple but crucial](#denseblock-memory-layout-simple-but-crucial)
 
-
 ## Common
 
 ### High-level overview
-High level view on `main.cpp`
+High level view on [main.cpp](src/main.cpp)
 ```
 read sparse A
 initializationStage()
@@ -54,8 +55,6 @@ replicationStage()
 computationStage()
 optional: printing
 ```
-
-
 ### Initialization Stage
 ```
 1. Master reads A.
@@ -84,7 +83,6 @@ Within replication group processes reduce their matrices - using `MPI_Allreduce`
 
 For comparison, I have also implemented P2P replication of dense matrix, which, as expected resulted in much worse performance.
 
-
 ### Computation Stage
 
 General idea for computation is to do local computation and rotate sparse A. However, it can be improved by *overlapping data transfer and computation using **asynchronous communication*** - see pseudocode below. Overlapping those stages mitigates the overhead comming from transfering sparse matrices, empirically resulting in no overhead at all, as computation takes more time. This requires additional memory of `max_size(localA)` for recv buffer. 
@@ -104,7 +102,6 @@ for exponent = 1,2...,e:
         replicateB
 ```
 
-
 #### GatherC
 
 Implemented using `MPI_Gather`
@@ -117,7 +114,6 @@ Implemented using `MPI_Gather`
 
 1. Within replication group: reduce C to group's master.
 2. Within master's of these replication groups gather to global Master.
-
 
 ### CountGEValues
 
@@ -171,7 +167,6 @@ In this layour after merging two vectors we have the following layout: `[P1_vals
 This might seem as a trivial difference, but it's *crucial*, because `matmul.cpp/computationRound()` with second approach is empirically over **5x times** faster! It comes with the overhead of rearranging the matrix, but it's done once after replication, and does not take that much time, actually being negligible. Meanwhile, computing is done multiple times.
 
 More formally, it comes from the memory access layout. Here we want to access consecutive memory fragments as often as possible - for example, it's similar to the "stride-memory-access" when adding vectors. 
-
 
 ### Sparse A representation
 
@@ -241,7 +236,6 @@ To see scaling charts see the coresponding pdf files.
 ### Weak Scaling
 
 Let `N = N_ROWS = N_COLUMNS, P = N_PROCESSES`
-
 
 Amount of work per processor is constant. Problem size grows with number of processors.
 
