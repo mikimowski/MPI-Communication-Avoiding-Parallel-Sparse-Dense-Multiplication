@@ -36,7 +36,7 @@ n - number of rows/columns in matrix
 
 #### CSR format
 
-Follows wikipedia description.
+Follows [wikipedia](https://en.wikipedia.org/wiki/Sparse_matrix) description
 
 #### DenseBlock format
 
