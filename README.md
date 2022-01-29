@@ -164,7 +164,7 @@ Second approach requires additional post-processing after merging, if we want to
 
 In this layour after merging two vectors we have the following layout: `[P1_vals, P2_vals, P3_vals...]`. Thus, after replication/marging we transform it to ` [row1_vals, row2_vals, row3_vals...]`. See `matrix.cpp/rearrangeAfterMerge` for details.
 
-This might seem as a trivial difference, but it's *crucial*, because `matmul.cpp/computationRound()` with second approach is empirically over **5x times** faster! It comes with the overhead of rearranging the matrix, but it's done once after replication, and does not take that much time, actually being negligible. Meanwhile, computing is done multiple times.
+This might seem as a trivial difference, but it's *crucial*, because `matmul.cpp/computationRound()` with second approach is empirically over **5x times** faster. It comes with the overhead of rearranging the matrix, but it's done once after replication, and does not take that much time, actually being negligible. Meanwhile, computing is done multiple times.
 
 More formally, it comes from the memory access layout. Here we want to access consecutive memory fragments as often as possible - for example, it's similar to the "stride-memory-access" when adding vectors. 
 
@@ -229,8 +229,6 @@ I = W/Q > 1
 
 ## Scaling
 
-To measure scaling I adjusted and used `verifystud.py`.
-
 To see scaling charts see the coresponding pdf files.
 
 ### Weak Scaling
@@ -239,7 +237,7 @@ Let `N = N_ROWS = N_COLUMNS, P = N_PROCESSES`
 
 Amount of work per processor is constant. Problem size grows with number of processors.
 
-* `weak-scaling.pdf` represents the following setup:
+* [weak-scaling.pdf](raport/weak-scaling.pdf) represents the following setup:
 ```
 (N, P)
 (512, 1),
@@ -255,8 +253,8 @@ Amount of work per processor is constant. Problem size grows with number of proc
 
 Matrix size (work) is constant, and number of processors grows.
 
-* `strong-scaling-ColA.pdf` represents strong scalling for `ColA`
-* `strong-scaling-InnerABC.pdf` represents strong scalling for `InnerABC`
+* [strong-scaling-ColA.pdf](raport/strong-scaling-ColA.pdf) represents strong scalling for `ColA`
+* [strong-scaling-InnerABC.pdf](strong-scaling-InnerABC.pdf) represents strong scalling for `InnerABC`
 
 
 <!-- ### Stages comparison
